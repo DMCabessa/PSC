@@ -220,8 +220,8 @@ end % if ~isempty
 
 if options.Verbosity > 0, fprintf( ...
     '\nSwarming... (WARNING: this action might take several minutes)'), end
-exitflag = zeros(c,1) ; % Default exitflag, for max iterations reached.
-flag = repmat('init',c,1) ;
+exitflag = 0 ; % Default exitflag, for max iterations reached.
+flag = 'init' ;
 
 state.fitnessfcn = fitnessfcn ;
 state.LastImprovement = 1 ;
@@ -235,7 +235,7 @@ averagetime = 0 ; stalltime = 0;
 tic
 for k = 1:itr
     %fprintf('\nGeneration number %d out of 200',k)
-    state.Score = inf*ones(n,1,c) ; % Reset fitness vector
+    state.Score = inf*ones(n,1) ; % Reset fitness vector
     state.Penalties = zeros(n,1) ; % Reset all penalties
     state.Generation = k ;
     state.OutOfBounds = false(options.PopulationSize,1) ;
@@ -267,7 +267,7 @@ for k = 1:itr
         else % Default
             for j = 1:c
                 for i = 1:n
-                    state.Score(i,1,j) = fitnessfcn(state.Population(i,:,j),j,library) ;
+                    state.Score(i) = fitnessfcn(state.Population(i,:,:),library) ;
                     % debugging info
                     %{
                     fprintf('\nclass %d; particle (%d,%d); value %d',j,state.Population(i,1,j),state.Population(i,2,j),state.Score(i*j))
@@ -304,7 +304,7 @@ for k = 1:itr
         else
             for j = 1:c
                 for i = find(not(state.OutOfBounds))'
-                    state.Score(i,1,j) = fitnessfcn(state.Population(i,:,j),j,library) ;
+                    state.Score(i) = fitnessfcn(state.Population(i,:,:),library) ;
                 end % for i
             end % for j
         end % if strcmpi
@@ -315,69 +315,62 @@ for k = 1:itr
     % ---------------------------------------------------------------------
     betterindex = state.Score < state.fLocalBests ;
     state.fLocalBests(betterindex) = state.Score(betterindex) ;
-    for j = 1:c
-        state.xLocalBests(betterindex(:,:,j),:,j) = state.Population(betterindex(:,:,j),:,j) ;
-    end % for j
+    state.xLocalBests(betterindex,:,:) = state.Population(betterindex,:,:) ;
     % ---------------------------------------------------------------------
 
-    for j = 1:c
-        % Update the global best and its fitness, then check for termination
-        % ---------------------------------------------------------------------
-        [minfitness, minfitnessindex] = min(state.Score(:,:,j)) ;
-        % debugging info
-        %{
-        fprintf('\n[minfitness::%d = %d]',j,minfitness)
-        %}
-        
-    %     alpha = alpha + (1/k) * ...
-    %         ((1/n)*sum((state.Velocities*state.Velocities')^2) ./ ...
-    %         ((1/n)*sum(state.Velocities*state.Velocities')).^2) ;
-    %     tempchk = alpha <= 1.6 ;
-        if k == 1 || minfitness < state.fGlobalBest(k-1,:,j)
-            stalltime = toc ;
-            state.fGlobalBest(k,:,j) = minfitness ;
-            state.xGlobalBest(:,:,j) = state.Population(minfitnessindex,:,j) ;
-            state.LastImprovement = k ;
-            imprvchk = k > options.StallGenLimit && ...
-                (state.fGlobalBest(k - options.StallGenLimit,:,c) - ...
-                    state.fGlobalBest(k,:,j)) / (k - options.StallGenLimit) < ...
-                    options.TolFun ;
-            if imprvchk
-                exitflag(j) = 1 ;
-                flag(j,:) = 'done' ;
-            elseif state.fGlobalBest(k,:,j) < options.FitnessLimit
-                exitflag(j) = 2 ;
-                flag(j,:) = 'done' ;
-            end % if k
-        else % No improvement from last iteration
-            state.fGlobalBest(k,:,j) = state.fGlobalBest(k-1,:,j) ;
-        end % if minfitness
     
-        stallchk = k - state.LastImprovement >= options.StallGenLimit ;
-        if stallchk
-            % No improvement in global best for StallGenLimit generations
-            exitflag(j) = 3 ; flag(j,:) = 'done' ;
-        end
-        
-        if stalltime - toc > options.StallTimeLimit
-            % No improvement in global best for StallTimeLimit seconds
-            exitflag(j) = -4 ; flag(j,:) = 'done' ;
-        end
-         
-        if toc + averagetime > options.TimeLimit
-            % Reached total simulation time of TimeLimit seconds
-            exitflag(j) = -5 ; flag(j,:) = 'done' ;
-        end
-        % ---------------------------------------------------------------------
+    % Update the global best and its fitness, then check for termination
+    % ---------------------------------------------------------------------
+    [minfitness, minfitnessindex] = min(state.Score) ;
     
-        % Update flags, state and plots before updating positions
-        % ---------------------------------------------------------------------
-        if k == 2, flag(j,:) = 'iter' ; end
-        if k == itr
-            flag(j,:) = 'done' ;
-            exitflag(j) = 0 ;
-        end
-    end % for j
+%     alpha = alpha + (1/k) * ...
+%         ((1/n)*sum((state.Velocities*state.Velocities')^2) ./ ...
+%         ((1/n)*sum(state.Velocities*state.Velocities')).^2) ;
+%     tempchk = alpha <= 1.6 ;
+    if k == 1 || minfitness < state.fGlobalBest(k-1,:)
+        stalltime = toc ;
+        state.fGlobalBest(k,:) = minfitness ;
+        state.xGlobalBest = state.Population(minfitnessindex,:,:) ;
+        state.LastImprovement = k ;
+        imprvchk = k > options.StallGenLimit && ...
+            (state.fGlobalBest(k - options.StallGenLimit,:) - ...
+                state.fGlobalBest(k,:)) / (k - options.StallGenLimit) < ...
+                options.TolFun ;
+        if imprvchk
+            exitflag = 1 ;
+            flag = 'done' ;
+        elseif state.fGlobalBest(k,:) < options.FitnessLimit
+            exitflag = 2 ;
+            flag = 'done' ;
+        end % if k
+    else % No improvement from last iteration
+        state.fGlobalBest(k,:) = state.fGlobalBest(k-1,:) ;
+    end % if minfitness
+
+    stallchk = k - state.LastImprovement >= options.StallGenLimit ;
+    if stallchk
+        % No improvement in global best for StallGenLimit generations
+        exitflag = 3 ; flag = 'done' ;
+    end
+    
+    if stalltime - toc > options.StallTimeLimit
+        % No improvement in global best for StallTimeLimit seconds
+        exitflag = -4 ; flag = 'done' ;
+    end
+     
+    if toc + averagetime > options.TimeLimit
+        % Reached total simulation time of TimeLimit seconds
+        exitflag = -5 ; flag = 'done' ;
+    end
+    % ---------------------------------------------------------------------
+
+    % Update flags, state and plots before updating positions
+    % ---------------------------------------------------------------------
+    if k == 2, flag = 'iter' ; end
+    if k == itr
+        flag = 'done' ;
+        exitflag = 0 ;
+    end
     
     if ~isempty(options.PlotFcns) && ~mod(k,options.PlotInterval)
         % Exit gracefully if user has closed the figure
@@ -420,7 +413,7 @@ for k = 1:itr
         end
     end % if ~isempty
     
-    if strcmpi(flag,repmat('done',c,1))
+    if strcmpi(flag,'done')
         break
     end % if strcmpi
     % ---------------------------------------------------------------------
@@ -470,15 +463,14 @@ end
 
 % Wrap up
 % -------------------------------------------------------------------------
-for k = 1:c
-    if options.Verbosity > 0
-        if exitflag(k) == -1
-            %fprintf('\nBest point found for class %d: %s\n\n',k,mat2str(xOpt(:,:,k),5))
-        else
-            %fprintf('\nFinal best point for class %d: %s\n\n',k,mat2str(xOpt(:,:,k),5))
-        end
-    end % if options.Verbosity
-end % for k
+
+if options.Verbosity > 0
+    if exitflag == -1
+        %fprintf('\nBest point found for class %d: %s\n\n',k,mat2str(xOpt(:,:,k),5))
+    else
+        %fprintf('\nFinal best point for class %d: %s\n\n',k,mat2str(xOpt(:,:,k),5))
+    end
+end % if options.Verbosity
 centers = xOpt(:,:,(1:c)) ;
 
 if strcmp(options.UseParallel,'always') && ~poolalreadyopen

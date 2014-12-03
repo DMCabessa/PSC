@@ -18,8 +18,8 @@ state.Population(n-nbrtocreate+1:n,:) = ...
 % PSOGETINTIALPOPULATION).
 
 % Initialize the global and local fitness to the worst possible
-state.fGlobalBest = ones(itr,1,c)*inf; % Global best fitness score
-state.fLocalBests = ones(n,1,c)*inf ; % Individual best fitness score
+state.fGlobalBest = ones(itr,1)*inf; % Global best fitness score
+state.fLocalBests = ones(n,1)*inf ; % Individual best fitness score
 
 % Initialize global and local best positions
 state.xGlobalBest = ones(1,nvars,c)*inf ;

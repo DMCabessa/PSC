@@ -18,9 +18,7 @@ upperinertia = max(0.9,lowerinertia) ;
 R1 = rand(n,nvars,c) ;
 R2 = rand(n,nvars,c) ;
 
-for k = 1:c
-    R1(isinf(state.fLocalBests(:,:,k)),:,k) = 0 ;
-end % for k
+R1(isinf(state.fLocalBests)) = 0 ;
 
 % Calculate matrix of velocities state.Velocities for entire population
 if strncmpi(options.PopulationType,'double',6) % Double vector
