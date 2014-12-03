@@ -133,14 +133,23 @@ fprintf('\nFinal results:\n\tHit rate: %d\n\tMiss rate: %d',...
 % HOUDOUT STRATEGY
 % ------------------------------------------------
 %
-fprintf('\nRunning houdout strategy') ;
-fprintf('(10 generations)')
-fprintf('.')
 options.c = size(unique(classes),2) ;
 options.nvars = size(library(1,:),2)-1 ;
-%options.fitnessfcn = @pscfitnessfcn1 ;
-%options.fitnessfcn = @pscfitnessfcn2 ;
+
+fprintf('\nRunning houdout strategy (f1)') ;
+options.fitnessfcn = @pscfitnessfcn1 ;
+
+%{
+fprintf('\nRunning houdout strategy (f2)') ;
+options.fitnessfcn = @pscfitnessfcn2 ;
+%}
+%{
+fprintf('\nRunning houdout strategy (f3)') ;
 options.fitnessfcn = @pscfitnessfcn3 ;
+%}
+
+fprintf(' - 10 generations')
+fprintf('.')
 
 folds = 4 ;
 generations = 10 ;
