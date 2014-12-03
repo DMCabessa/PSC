@@ -1,5 +1,6 @@
-function f = pscfitnessfcn2(x, library)
-% Basic fitness functions for PSC, namely ψi,c(t)
+function f = pscfitnessfcn2(x, library, c)
+% Basic fitness function for PSC, namely ψi,c(t)
+% arg 'c' is irrelevant, but necessary for uniformity 
 
 %clibrary = library(library(:, end) == c, :) ;
 DTrain = size(library,1) ;

@@ -1,0 +1,6 @@
+function f = pscfitnessfcn2(x, library, c)
+% Mixed fitness function for PSC, namely ψi,c(t)
+
+f = (1/2)*(...
+	(pscfitnessfcn1(x, library, c)/100)...
+	+ pscfitnessfcn2(x, library, c) ) ;

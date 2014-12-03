@@ -234,7 +234,7 @@ n = options.PopulationSize ; itr = options.Generations ;
 averagetime = 0 ; stalltime = 0;
 tic
 for k = 1:itr
-    fprintf('\nGeneration number %d out of 400',k)
+    %fprintf('\nGeneration number %d out of 400',k)
     state.Score = inf*ones(n,1) ; % Reset fitness vector
     state.Penalties = zeros(n,1) ; % Reset all penalties
     state.Generation = k ;
@@ -265,15 +265,13 @@ for k = 1:itr
             state.Score = scoretmp ;
             clear scoretmp x
         else % Default
-            for j = 1:c
-                for i = 1:n
-                    state.Score(i) = fitnessfcn(state.Population(i,:,:),library) ;
-                    % debugging info
-                    %{
-                    fprintf('\nclass %d; particle (%d,%d); value %d',j,state.Population(i,1,j),state.Population(i,2,j),state.Score(i*j))
-                    %}
-                end % for i
-            end % for j
+            for i = 1:n
+                state.Score(i) = fitnessfcn(state.Population(i,:,:),library,c) ;
+                % debugging info
+                %{
+                fprintf('\nclass %d; particle (%d,%d); value %d',j,state.Population(i,1,j),state.Population(i,2,j),state.Score(i*j))
+                %}
+            end % for i
         end % if strcmpi
         
         if ~all([isempty([Aineq,bineq]), isempty([Aeq,beq]), ...
@@ -302,11 +300,9 @@ for k = 1:itr
             end
             clear scoretmp x
         else
-            for j = 1:c
-                for i = find(not(state.OutOfBounds))'
-                    state.Score(i) = fitnessfcn(state.Population(i,:,:),library) ;
-                end % for i
-            end % for j
+            for i = find(not(state.OutOfBounds))'
+                state.Score(i) = fitnessfcn(state.Population(i,:,:),library,c) ;
+            end % for i
         end % if strcmpi
     end
     % ---------------------------------------------------------------------

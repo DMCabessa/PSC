@@ -134,16 +134,18 @@ fprintf('\nFinal results:\n\tHit rate: %d\n\tMiss rate: %d',...
 % ------------------------------------------------
 %
 fprintf('\nRunning houdout strategy') ;
-%fprintf('(10 generations)')
+fprintf('(10 generations)')
 fprintf('.')
 options.c = size(unique(classes),2) ;
 options.nvars = size(library(1,:),2)-1 ;
-options.fitnessfcn = @pscfitnessfcn2 ;
+%options.fitnessfcn = @pscfitnessfcn1 ;
+%options.fitnessfcn = @pscfitnessfcn2 ;
+options.fitnessfcn = @pscfitnessfcn3 ;
 
 folds = 4 ;
-%generations = 10 ;
-%hits = zeros(generations,1) ;
-%for itr = 1:generations
+generations = 10 ;
+hits = zeros(generations,1) ;
+for itr = 1:generations
 
     if isequal(DemoMode,'SINGULAR')
         [samples.training, samples.test] = sampling(library, folds, options.c) ;
@@ -182,11 +184,11 @@ folds = 4 ;
     end % for i
     % ------------------------------------------------
     hitrate = rating.hit/(rating.hit+rating.miss) ;
-%    hits(itr) = hitrate ;
+    hits(itr) = hitrate ;
     missrate = rating.miss/(rating.hit+rating.miss) ;
     fprintf('\nHit rate: %d\nMiss rate: %d\n',hitrate,missrate)
-%end % for itr
-%fprintf('\nHit rate(mean, std) = (%d,%d)\n',mean(hits),std(hits))
+end % for itr
+fprintf('\nHit rate(mean, std) = (%d,%d)\n',mean(hits),std(hits))
 %
 % ------------------------------------------------
 
