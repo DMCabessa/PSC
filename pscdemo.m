@@ -154,11 +154,11 @@ folds = 4 ;
 
     options.library = samples.training ;
 
-    %fprintf('\nTraining phase...')
+    fprintf('\nTraining phase...')
 
     centers = psc(options) ;
 
-    %fprintf('\nTesting phase...')
+    fprintf('\nTesting phase...')
     % ------------------------------------------------
     rating.miss = 0; rating.hit = 0;
 

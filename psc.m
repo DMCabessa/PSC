@@ -234,7 +234,7 @@ n = options.PopulationSize ; itr = options.Generations ;
 averagetime = 0 ; stalltime = 0;
 tic
 for k = 1:itr
-    %fprintf('\nGeneration number %d out of 200',k)
+    fprintf('\nGeneration number %d out of 400',k)
     state.Score = inf*ones(n,1) ; % Reset fitness vector
     state.Penalties = zeros(n,1) ; % Reset all penalties
     state.Generation = k ;
