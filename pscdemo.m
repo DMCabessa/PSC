@@ -1,13 +1,17 @@
-function pscdemo(DemoMode)
+function pscdemo(DemoMode, fitnessfcn, method)
 % Runs the PSC on a demonstration data, which should be located
 % in the <./data> directory.
 %
-% pscdemo('SEGMENTED') for dual dataset
+% pscdemo(DemoMode)
+% pscdemo(DemoMode,fitnessfcn)
+% pscdemo(DemoMode,fitnessfcn,method)
 %
 % V. Pimenta, Nov 2014.
 
 if ~nargin 
     DemoMode = 'SINGULAR' ;
+    fitnessfcn = 1 ;
+    method = 'DEFAULT' ;
 end % ~nargin
 
 workingdir = pwd ;
@@ -76,132 +80,134 @@ if isequal(DemoMode,'SEGMENTED')
     fprintf('\nDone reading.') ;
 end % isequal
 
-% DEFAULT EXECUTION
-% ------------------------------------------------
-%{
-fprintf('\nRunning deafult execution.') ;
-options.c = size(unique(classes),2) ;
-options.nvars = size(library(1,:),2)-1 ;
-options.fitnessfcn = @pscfitnessfcn ;
-options.library = library;
-psc(options)
-%} 
-% ------------------------------------------------
+if fitnessfcn == 1
+    options.fitnessfcn = @pscfitnessfcn1 ;
+elseif fitnessfcn == 2
+    options.fitnessfcn = @pscfitnessfcn2 ;
+elseif fitnessfcn == 3
+    options.fitnessfcn = @pscfitnessfcn3 ;
+end % if fitnessfcn
 
-% LEAVE-ONE-OUT STRATEGY (for smaller databases)
-% ------------------------------------------------
-%{
-fprintf('\nRunning leave-one-out strategy.') ;
-options.c = size(unique(classes),2) ;
-options.nvars = size(library(1,:),2)-1 ;
-options.fitnessfcn = @pscfitnessfcn ;
-
-rating.misses = 0; rating.hits = 0;
-for i = 1:size(library,1)
-    samples.training = library(1:end ~= i,:) ;
-    samples.test = library(i,:) ;
-
-    options.library = samples.training ;
-    centers = psc(options) ;
-
-    % cropping out the class
-    targetclass = samples.test(:,end) ;
-    test = samples.test(:,(1:options.nvars)) ;
-
-    mindist = inf ;
-    minindex = -1;
-    for j = 1:options.c
-        d = pdist([test;centers(:,:,j)]) ;
-        if d < mindist
-            mindist = d ;
-            minindex = j ;
-        end
-    end % for j
-    if minindex == targetclass
-        rating.hits = rating.hits+1 ;
-    else
-        rating.misses = rating.misses+1 ;
-    end % if minindex
-end % for i
-rating.hitrate = rating.hits/(rating.hits+rating.misses) ;
-rating.missrate = rating.misses/(rating.hits+rating.misses) ;
-fprintf('\nFinal results:\n\tHit rate: %d\n\tMiss rate: %d',...
-    itr,rating.hitrate,rating.missrate)
-%}
-% ------------------------------------------------
-
-% HOUDOUT STRATEGY
-% ------------------------------------------------
-%
-options.c = size(unique(classes),2) ;
-options.nvars = size(library(1,:),2)-1 ;
-
-fprintf('\nRunning houdout strategy (f1)') ;
-options.fitnessfcn = @pscfitnessfcn1 ;
-
-%{
-fprintf('\nRunning houdout strategy (f2)') ;
-options.fitnessfcn = @pscfitnessfcn2 ;
-%}
-%{
-fprintf('\nRunning houdout strategy (f3)') ;
-options.fitnessfcn = @pscfitnessfcn3 ;
-%}
-
-fprintf(' - 10 generations')
-fprintf('.')
-
-folds = 4 ;
-generations = 10 ;
-hits = zeros(generations,1) ;
-for itr = 1:generations
-
-    if isequal(DemoMode,'SINGULAR')
-        [samples.training, samples.test] = sampling(library, folds, options.c) ;
-    else
-        samples.training = library ;
-        samples.test = testlibrary ;
-    end % isequal
-
-    options.library = samples.training ;
-
-    fprintf('\nTraining phase...')
-
-    centers = psc(options) ;
-
-    fprintf('\nTesting phase...')
+if isequal(method,'DEFAULT')
+    % DEFAULT EXECUTION
     % ------------------------------------------------
-    rating.miss = 0; rating.hit = 0;
+    fprintf('\nRunning deafult execution.') ;
+    options.c = size(unique(classes),2) ;
+    options.nvars = size(library(1,:),2)-1 ;
+    options.library = library;
+    psc(options)
+    % ------------------------------------------------
 
-    samples.testdata = samples.test(:,(1:options.nvars)) ;
-    samples.testsclasses = samples.test(:,end) ;
-    for i = 1:size(samples.test,1)
+elseif isequal(method,'LEAVE-ONE-OUT')
+    % LEAVE-ONE-OUT STRATEGY (for smaller databases)
+    % ------------------------------------------------
+    fprintf('\nRunning leave-one-out strategy.') ;
+    options.c = size(unique(classes),2) ;
+    options.nvars = size(library(1,:),2)-1 ;
+
+    rating.misses = 0; rating.hits = 0;
+    for i = 1:size(library,1)
+        samples.training = library(1:end ~= i,:) ;
+        samples.test = library(i,:) ;
+
+        options.library = samples.training ;
+        centers = psc(options) ;
+
+        % cropping out the class
+        targetclass = samples.test(:,end) ;
+        test = samples.test(:,(1:options.nvars)) ;
+
         mindist = inf ;
         minindex = -1;
         for j = 1:options.c
-            d = pdist([samples.testdata(i,:);centers(:,:,j)]) ;
+            d = pdist([test;centers(:,:,j)]) ;
             if d < mindist
                 mindist = d ;
                 minindex = j ;
             end
         end % for j
-        if minindex == samples.testsclasses(i)
-            rating.hit = rating.hit+1 ;
+        if minindex == targetclass
+            rating.hits = rating.hits+1 ;
         else
-            rating.miss = rating.miss+1 ;
+            rating.misses = rating.misses+1 ;
         end % if minindex
     end % for i
+    rating.hitrate = rating.hits/(rating.hits+rating.misses) ;
+    rating.missrate = rating.misses/(rating.hits+rating.misses) ;
+    fprintf('\nFinal results:\n\tHit rate: %d\n\tMiss rate: %d',...
+        itr,rating.hitrate,rating.missrate)
     % ------------------------------------------------
-    hitrate = rating.hit/(rating.hit+rating.miss) ;
-    hits(itr) = hitrate ;
-    missrate = rating.miss/(rating.hit+rating.miss) ;
-    fprintf('\nHit rate: %d\nMiss rate: %d\n',hitrate,missrate)
-end % for itr
-fprintf('\nHit rate(mean, std) = (%d,%d)\n',mean(hits),std(hits))
-%
-% ------------------------------------------------
 
-% only for 2-dimensional-2-class data
+elseif strncmp(method,'HOLDOUT',7)
+    % HOLDOUT STRATEGY
+    % ------------------------------------------------
+    %
+    options.c = size(unique(classes),2) ;
+    options.nvars = size(library(1,:),2)-1 ;
+
+    fprintf('\nRunning holdout strategy (f%d)',fitnessfcn) ;
+    folds = 4 ;
+    generations = 1 ;
+
+    if isequal(method,'HOLDOUT-10-FOLD')
+        fprintf(' - 10 generations')
+        generations = 10 ;
+        hits = zeros(generations,1) ;
+    end % if isequal
+
+    fprintf('.') 
+
+    for itr = 1:generations
+
+        if isequal(DemoMode,'SINGULAR')
+            [samples.training, samples.test] = sampling(library, folds, options.c) ;
+        else
+            samples.training = library ;
+            samples.test = testlibrary ;
+        end % isequal
+
+        options.library = samples.training ;
+
+        %fprintf('\nTraining phase...')
+
+        centers = psc(options) ;
+
+        %fprintf('\nTesting phase...')
+        % ------------------------------------------------
+        rating.miss = 0; rating.hit = 0;
+
+        samples.testdata = samples.test(:,(1:options.nvars)) ;
+        samples.testsclasses = samples.test(:,end) ;
+        for i = 1:size(samples.test,1)
+            mindist = inf ;
+            minindex = -1;
+            for j = 1:options.c
+                d = pdist([samples.testdata(i,:);centers(:,:,j)]) ;
+                if d < mindist
+                    mindist = d ;
+                    minindex = j ;
+                end
+            end % for j
+            if minindex == samples.testsclasses(i)
+                rating.hit = rating.hit+1 ;
+            else
+                rating.miss = rating.miss+1 ;
+            end % if minindex
+        end % for i
+        % ------------------------------------------------
+        hitrate = rating.hit/(rating.hit+rating.miss) ;
+        hits(itr) = hitrate ;
+        missrate = rating.miss/(rating.hit+rating.miss) ;
+        fprintf('\nHit rate: %d\nMiss rate: %d\n',hitrate,missrate)
+    end % for itr
+    if isequal(method,'HOLDOUT-10-FOLD')
+        fprintf('\nHit rate(mean, std) = (%d,%d)\n',mean(hits),std(hits))
+    end % if isequal
+    %
+    % ------------------------------------------------
+end % if isequal
+
+% Plotting (only for 2-dimensional-2-class data)
 % ------------------------------------------------
 %{
 index1 = [] ; index2 = [] ;
