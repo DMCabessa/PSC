@@ -218,8 +218,8 @@ if ~isempty(options.PlotFcns)
 end % if ~isempty
 % -------------------------------------------------------------------------
 
-if options.Verbosity > 0, fprintf( ...
-    '\nSwarming... (WARNING: this action might take several minutes)'), end
+%if options.Verbosity > 0, fprintf( ...
+%    '\nSwarming... (WARNING: this action might take several minutes)'), end
 exitflag = 0 ; % Default exitflag, for max iterations reached.
 flag = 'init' ;
 

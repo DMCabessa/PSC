@@ -36,8 +36,8 @@ cd(workingdir)
 tline = fgets(fid) ;
 i = 1;
 while ischar(tline)
-	% All attributes must be double and separated by comma
-	% Class indicative must be the last term
+    % All attributes must be double and separated by comma
+    % Class indicative must be the last term
     library(i,:) = str2double(strsplit(tline,',')) ;
     classes(i) =  library(end) ;
     i = i+1 ;
@@ -149,9 +149,9 @@ elseif strncmp(method,'HOLDOUT',7)
     folds = 4 ;
     generations = 1 ;
 
-    if isequal(method,'HOLDOUT-10-FOLD')
-        fprintf(' - 10 generations')
-        generations = 10 ;
+    if isequal(method,'HOLDOUT-20G')
+        generations = 20 ;
+        fprintf(' - %d generation(s)',generations)
         hits = zeros(generations,1) ;
     end % if isequal
 
@@ -198,9 +198,9 @@ elseif strncmp(method,'HOLDOUT',7)
         hitrate = rating.hit/(rating.hit+rating.miss) ;
         hits(itr) = hitrate ;
         missrate = rating.miss/(rating.hit+rating.miss) ;
-        fprintf('\nHit rate: %d\nMiss rate: %d\n',hitrate,missrate)
+        %fprintf('\nHit rate: %d\nMiss rate: %d\n',hitrate,missrate)
     end % for itr
-    if isequal(method,'HOLDOUT-10-FOLD')
+    if isequal(method,'HOLDOUT-20G')
         fprintf('\nHit rate(mean, std) = (%d,%d)\n',mean(hits),std(hits))
     end % if isequal
     %

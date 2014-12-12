@@ -2,13 +2,13 @@ function options = pscoptimset(varargin)
 % Creates an options structure for psc.
 
 % Default options
-options.CognitiveAttraction = 0.5 ;
+options.CognitiveAttraction = 2.0 ;
 options.ConstrBoundary = 'penalize' ; 
 options.AccelerationFcn = @psciterate ;
 options.DemoMode = 'off' ;
 options.Display = 'final' ;
 options.FitnessLimit = -inf ;
-options.Generations = 400 ;
+options.Generations = 1000 ;
 options.HybridFcn = [] ;
 options.InitialPopulation = [] ;
 options.InitialVelocities = [] ;
@@ -17,9 +17,9 @@ options.OutputFcns = {} ;
 options.PlotFcns = {} ;
 options.PlotInterval = 1 ;
 options.PopInitRange = [0;1] ;
-options.PopulationSize = 20 ;
+options.PopulationSize = 50 ;
 options.PopulationType = 'doubleVector' ;
-options.SocialAttraction = 1.25 ;
+options.SocialAttraction = 2.0 ;
 options.StallGenLimit = 50 ;
 options.StallTimeLimit = Inf ;
 options.TimeLimit = Inf ;
