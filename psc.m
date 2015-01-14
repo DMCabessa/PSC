@@ -151,9 +151,9 @@ end
 % Generate swarm initial state (this line must not be moved)
 % -------------------------------------------------------------------------
 if strncmpi(options.PopulationType,'double',2)
-    state = psccreationuniform(options,nvars,c) ;
+    state = psccreationuniform(options,nvars,c,library) ;
 elseif strncmpi(options.PopulationType,'bi',2) % Bitstring variables
-    state = psccreationbinary(options,nvars,c) ;
+    state = psccreationbinary(options,nvars,c,library) ;
 end
 % -------------------------------------------------------------------------
 
@@ -396,18 +396,6 @@ for k = 1:itr
     % ---------------------------------------------------------------------
     averagetime = toc/k ;
 
-    % only for 'fcmdata' dataset
-    %{
-    clf
-    center = state.xGlobalBest ;
-    axis([0,1,0,1])
-    hold on
-    plot(state.Population(:,1,1),state.Population(:,2,1),'o')
-    plot(state.Population(:,1,2),state.Population(:,2,2),'x')
-    plot(center(:,1,1),center(:,2,1),'ko','markersize',15,'LineWidth',2)
-    plot(center(:,1,2),center(:,2,2),'kx','markersize',15,'LineWidth',2)
-    pause
-    %}
 end % for k
 % -------------------------------------------------------------------------
 

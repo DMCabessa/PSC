@@ -1,4 +1,4 @@
-function state = psccreationuniform(options,nvars,c)
+function state = psccreationuniform(options,nvars,c,library)
 % Generates uniformly distributed swarm based on options.PopInitRange.
 
 n = options.PopulationSize ;
@@ -7,12 +7,22 @@ itr = options.Generations ;
 [state,nbrtocreate] = pscgetinitialpopulation(options,n,nvars,c) ;
 
 % Initialize particle positions
-state.Population(n-nbrtocreate+1:n,:) = ...
+%{state.Population(n-nbrtocreate+1:n,:) = ...
     repmat( ...
     repmat(options.PopInitRange(1,:),nbrtocreate,1) + ...
     repmat((options.PopInitRange(2,:) - options.PopInitRange(1,:)),...
     nbrtocreate,1).*rand(nbrtocreate,nvars) ...
     ,1,c) ;
+%}
+
+% Under-test module
+for i = 1:size(state.Population,1)
+	for j = 1:size(state.Population,2)
+		hi = max(library(:,j)) ;
+		lo = min(library(:,j)) ;
+		state.Population(i,j,:) = rand(1,2)*(hi-lo)+lo ;
+	end % for j
+end % for i
 
 % Initial particle velocities are zero by default (should be already set in
 % PSOGETINTIALPOPULATION).

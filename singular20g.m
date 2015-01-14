@@ -10,4 +10,4 @@ clear functions ;
 %pscdemo('SINGULAR',3,'HOLDOUT-20G',false) ;
 
 % Alternative Run
-pscdemo('SINGULAR',2,'HOLDOUT',false) ;
+pscdemo('SINGULAR',1,'DEFAULT',true) ;
