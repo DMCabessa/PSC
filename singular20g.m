@@ -5,6 +5,9 @@ cd C:\Users\Victor\Documents\GitHub\PSC ;
 clear functions ;
 
 % Run PSC with each fitness function
-pscdemo('SINGULAR',1,'HOLDOUT-20G') ;
-pscdemo('SINGULAR',2,'HOLDOUT-20G') ;
-pscdemo('SINGULAR',3,'HOLDOUT-20G') ;
+%pscdemo('SINGULAR',1,'HOLDOUT-20G',false) ;
+%pscdemo('SINGULAR',2,'HOLDOUT-20G',false) ;
+%pscdemo('SINGULAR',3,'HOLDOUT-20G',false) ;
+
+% Alternative Run
+pscdemo('SINGULAR',2,'HOLDOUT',false) ;

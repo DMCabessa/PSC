@@ -1,10 +1,11 @@
-function pscdemo(DemoMode, fitnessfcn, method)
+function pscdemo(DemoMode, fitnessfcn, method, twodim)
 % Runs the PSC on a demonstration data, which should be located
 % in the <./data> directory.
 %
 % pscdemo(DemoMode)
 % pscdemo(DemoMode,fitnessfcn)
 % pscdemo(DemoMode,fitnessfcn,method)
+% pscdemo(DemoMode,fitnessfcn,method, twodim)
 %
 % V. Pimenta, Nov 2014.
 
@@ -88,15 +89,56 @@ elseif fitnessfcn == 3
     options.fitnessfcn = @pscfitnessfcn3 ;
 end % if fitnessfcn
 
-if isequal(method,'DEFAULT')
+if strncmp(method,'DEFAULT',7)
     % DEFAULT EXECUTION
     % ------------------------------------------------
-    fprintf('\nRunning deafult execution.') ;
+    fprintf('\nRunning deafult execution') ;
     options.c = size(unique(classes),2) ;
     options.nvars = size(library(1,:),2)-1 ;
     options.library = library;
-    psc(options)
-    % ------------------------------------------------
+    generations = 1;
+
+    if isequal(method,'DEFAULT-10G')
+        generations = 10 ;
+        fprintf(' - %d generation(s)',generations)
+        hits = zeros(generations,1) ;
+    end % if isequal
+
+    fprintf('.') 
+
+    for itr = 1:generations;
+        centers = psc(options) ;
+
+        rating.miss = 0; rating.hit = 0;
+        samples.testdata = library(:,(1:options.nvars)) ;
+        samples.testsclasses = library(:,end) ;
+        for i = 1:size(library,1)
+            mindist = inf ;
+            minindex = -1;
+            for j = 1:options.c
+                d = pdist([samples.testdata(i,:);centers(:,:,j)]) ;
+                if d < mindist
+                    mindist = d ;
+                    minindex = j ;
+                end
+            end % for j
+            if minindex == samples.testsclasses(i)
+                rating.hit = rating.hit+1 ;
+            else
+                rating.miss = rating.miss+1 ;
+            end % if minindex
+        end % for i
+        % ------------------------------------------------
+        hitrate = rating.hit/(rating.hit+rating.miss) ;
+        hits(itr) = hitrate ;
+        missrate = rating.miss/(rating.hit+rating.miss) ;
+        if ~isequal(method,'DEFAULT-10G')
+            fprintf('\nHit rate: %d\nMiss rate: %d\n',hitrate,missrate)
+        end % if ~isequal
+    end % for itr
+    if isequal(method,'DEFAULT-10G')
+        fprintf('\nHit rate(mean, std) = (%d,%d)\n',mean(hits),std(hits))
+    end % if isequal
 
 elseif isequal(method,'LEAVE-ONE-OUT')
     % LEAVE-ONE-OUT STRATEGY (for smaller databases)
@@ -198,7 +240,9 @@ elseif strncmp(method,'HOLDOUT',7)
         hitrate = rating.hit/(rating.hit+rating.miss) ;
         hits(itr) = hitrate ;
         missrate = rating.miss/(rating.hit+rating.miss) ;
-        %fprintf('\nHit rate: %d\nMiss rate: %d\n',hitrate,missrate)
+        if ~isequal(method,'HOLDOUT-20G')
+            fprintf('\nHit rate: %d\nMiss rate: %d\n',hitrate,missrate)
+        end % if ~isequal
     end % for itr
     if isequal(method,'HOLDOUT-20G')
         fprintf('\nHit rate(mean, std) = (%d,%d)\n',mean(hits),std(hits))
@@ -209,28 +253,28 @@ end % if isequal
 
 % Plotting (only for 2-dimensional-2-class data)
 % ------------------------------------------------
-%{
-index1 = [] ; index2 = [] ;
-library = library(:,(1:options.nvars)) ;
-for i = 1:size(library,1)
-    dist1 = pdist([library(i,:);centers(:,:,1)]) ;
-    dist2 = pdist([library(i,:);centers(:,:,2)]) ;
-    if dist1<dist2
-        index1 = horzcat(index1,i) ;
-    else
-        index2 = horzcat(index2,i) ;
-    end % if dist1
-end % for i
+if twodim
+    index1 = [] ; index2 = [] ;
+    library = library(:,(1:options.nvars)) ;
+    for i = 1:size(library,1)
+        dist1 = pdist([library(i,:);centers(:,:,1)]) ;
+        dist2 = pdist([library(i,:);centers(:,:,2)]) ;
+        if dist1<dist2
+            index1 = horzcat(index1,i) ;
+        else
+            index2 = horzcat(index2,i) ;
+        end % if dist1
+    end % for i
 
-figure
-line(library(index1,1), library(index1,2), 'linestyle',...
-                        'none','marker', 'o','color','g');
-line(library(index2,1),library(index2,2),'linestyle',...
-                        'none','marker', 'x','color','r');
-hold on
-plot(centers(:,1,1),centers(:,2,1),'ko','markersize',15,'LineWidth',2)
-plot(centers(:,1,2),centers(:,2,2),'kx','markersize',15,'LineWidth',2)
-%}
+    figure
+    line(library(index1,1), library(index1,2), 'linestyle',...
+                            'none','marker', 'o','color','g');
+    line(library(index2,1),library(index2,2),'linestyle',...
+                            'none','marker', 'x','color','r');
+    hold on
+    plot(centers(:,1,1),centers(:,2,1),'ko','markersize',15,'LineWidth',2)
+    plot(centers(:,1,2),centers(:,2,2),'kx','markersize',15,'LineWidth',2)
+end % if twodim
 % ------------------------------------------------
 
 fclose(fid) ;

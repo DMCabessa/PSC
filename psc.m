@@ -106,6 +106,7 @@ end
 
 % Check validity of VelocityLimit
 % -------------------------------------------------------------------------
+%{
 if all(~isfinite(options.VelocityLimit))
     options.VelocityLimit = [] ;
 elseif isscalar(options.VelocityLimit)
@@ -116,6 +117,7 @@ elseif ~isempty(length(options.VelocityLimit)) && ...
     error('%s, or a vector of size 1xnvars.',msg)
 end % if isscalar
 options.VelocityLimit = abs(options.VelocityLimit) ;
+%}
 % -------------------------------------------------------------------------
 
 % Setup for parallel computing
@@ -234,7 +236,7 @@ n = options.PopulationSize ; itr = options.Generations ;
 averagetime = 0 ; stalltime = 0;
 tic
 for k = 1:itr
-    %fprintf('\nGeneration number %d out of 400',k)
+    %fprintf('\nGeneration number %d out of 1000',k)
     state.Score = inf*ones(n,1) ; % Reset fitness vector
     state.Penalties = zeros(n,1) ; % Reset all penalties
     state.Generation = k ;
@@ -252,69 +254,43 @@ for k = 1:itr
     % Evaluate fitness, update the local bests
     % ---------------------------------------------------------------------
     % Apply constraint violation penalties, if applicable
-    if strcmpi(options.ConstrBoundary,'penalize') % EXPERIMENTAL
-        if strcmpi(options.Vectorized,'on') % Vectorized fitness function
-            state.Score = fitnessfcn(state.Population) ;
-        elseif strcmpi(options.UseParallel,'always') % Parallel computing
-            scoretmp = inf*ones(n,1) ;
-            x = state.Population ;
-%             matlabpool('addattachedfiles',{[pwd '\testfcns\nonlinearconstrdemo.m']}) ;
-            parfor i = 1:n
-                scoretmp(i) = fitnessfcn(x(i,:)) ;
-            end % for i
-            state.Score = scoretmp ;
-            clear scoretmp x
-        else % Default
-            for i = 1:n
-                state.Score(i) = fitnessfcn(state.Population(i,:,:),library,c) ;
-                % debugging info
-                %{
-                fprintf('\nclass %d; particle (%d,%d); value %d',j,state.Population(i,1,j),state.Population(i,2,j),state.Score(i*j))
-                %}
-            end % for i
-        end % if strcmpi
+    %fprintf('\nEvaluating fitness...')
+    
+    % Note that this code does not calculate fitness values for
+    % particles that are outside the search space constraints.
+    if strcmpi(options.Vectorized,'on')  % Vectorized fitness function
+        state.Score(not(state.OutOfBounds)) = ...
+            fitnessfcn(state.Population(not(state.OutOfBounds),:)) ;
+    elseif strcmpi(options.UseParallel,'always') % Parallel computing
+        % Thanks to Oliver and Mike for contributing this code.
+        validi = find(not(state.OutOfBounds))' ;
+        nvalid = numel(validi);
+        x = state.Population(validi,:);
+        scoretmp = inf*ones(nvalid,1) ;
         
-        if ~all([isempty([Aineq,bineq]), isempty([Aeq,beq]), ...
-                isempty([LB;UB]), isempty(nonlcon)])
-            state = psocalculatepenalties(state) ;
+        parfor i = 1:nvalid ;
+            scoretmp(i) = fitnessfcn(x(i,:)) ;
+        end % for i
+        
+        for i = 1:nvalid
+            state.Score(validi(i)) = scoretmp(i) ;
         end
-    else % DEFAULT (STABLE)
-        % Note that this code does not calculate fitness values for
-        % particles that are outside the search space constraints.
-        if strcmpi(options.Vectorized,'on')  % Vectorized fitness function
-            state.Score(not(state.OutOfBounds)) = ...
-                fitnessfcn(state.Population(not(state.OutOfBounds),:)) ;
-        elseif strcmpi(options.UseParallel,'always') % Parallel computing
-            % Thanks to Oliver and Mike for contributing this code.
-            validi = find(not(state.OutOfBounds))' ;
-            nvalid = numel(validi);
-            x = state.Population(validi,:);
-            scoretmp = inf*ones(nvalid,1) ;
-            
-            parfor i = 1:nvalid ;
-                scoretmp(i) = fitnessfcn(x(i,:)) ;
-            end % for i
-            
-            for i = 1:nvalid
-                state.Score(validi(i)) = scoretmp(i) ;
-            end
-            clear scoretmp x
-        else
-            for i = find(not(state.OutOfBounds))'
-                state.Score(i) = fitnessfcn(state.Population(i,:,:),library,c) ;
-            end % for i
-        end % if strcmpi
-    end
+        clear scoretmp x
+    else
+        for i = find(not(state.OutOfBounds))'
+             state.Score(i) = fitnessfcn(state.Population(i,:,:),library,c) ;
+        end % for i
+    end % if strcmpi
     % ---------------------------------------------------------------------
     
     % Update the local bests
     % ---------------------------------------------------------------------
+    %fprintf('\nUpdating local bests...')
     betterindex = state.Score < state.fLocalBests ;
     state.fLocalBests(betterindex) = state.Score(betterindex) ;
     state.xLocalBests(betterindex,:,:) = state.Population(betterindex,:,:) ;
     % ---------------------------------------------------------------------
 
-    
     % Update the global best and its fitness, then check for termination
     % ---------------------------------------------------------------------
     [minfitness, minfitnessindex] = min(state.Score) ;

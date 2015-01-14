@@ -27,7 +27,7 @@ options.TolCon = 1e-6 ;
 options.TolFun = 1e-6 ;
 options.UseParallel = 'never' ;
 options.Vectorized = 'off' ;
-options.VelocityLimit = [] ;
+options.VelocityLimit = 0.05 ;
 
 if ~nargin && ~nargout
     fprintf('\n')

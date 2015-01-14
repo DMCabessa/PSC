@@ -48,10 +48,8 @@ function state = checkmaxvelocities(state,options)
 
 if ~isempty(options.VelocityLimit) && ... % Check max velocities
         any(isfinite(options.VelocityLimit))
-    state.Velocities = min(state.Velocities, ...
-        repmat(options.VelocityLimit,n,1)) ;
-    state.Velocities = max(state.Velocities, ...
-        repmat(-options.VelocityLimit,n,1)) ;
+    state.Velocities = min(state.Velocities, -options.VelocityLimit);
+    state.Velocities = max(state.Velocities, options.VelocityLimit);
 end
 
 function s = sigmoid(v)
