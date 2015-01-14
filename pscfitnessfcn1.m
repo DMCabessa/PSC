@@ -29,4 +29,4 @@ for k = 1:DTrain
 		
 end % for k
 
-f = (1/DTrain)*sum(result);
+f = (100/DTrain)*sum(result);
