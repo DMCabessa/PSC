@@ -1,7 +1,7 @@
 function msg = pscgenerateoutputmessage(options,output,exitflag)
-% Generates output message after PSO is done.
+% Generates output message after PSC is done.
 %
-% See also: PSO
+% See also: PSC
 
 if all(exitflag == 0)
     msg = sprintf('Reached limit of %g iterations', options.Generations) ;

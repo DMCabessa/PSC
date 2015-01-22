@@ -1,85 +1,22 @@
-function pscdemo(DemoMode, fitnessfcn, method, twodim)
+function pscdemo(DemoMode, fitnessfcn, method, gens, infos)
 % Runs the PSC on a demonstration data, which should be located
-% in the <./data> directory.
+% in the <./data> directory. If a test file is present, then
+% DemoMode must be of type 'SEGMENTED'.
 %
-% pscdemo(DemoMode)
-% pscdemo(DemoMode,fitnessfcn)
-% pscdemo(DemoMode,fitnessfcn,method)
-% pscdemo(DemoMode,fitnessfcn,method, twodim)
+% pscdemo(DemoMode,fitnessfcn,method,gens,infos)
 %
 % V. Pimenta, Nov 2014.
 
-if ~nargin 
-    DemoMode = 'SINGULAR' ;
-    fitnessfcn = 1 ;
-    method = 'DEFAULT' ;
+if nargin < 5
+    error('Not enough arguments') ;
 end % ~nargin
 
-workingdir = pwd ;
-testdir = ls('data*') ;
-if ~isempty(testdir), cd(testdir), end
-
-[testfcn,testdir] = uigetfile('*.data','Load demo data for PSC') ;
-if ~testfcn
-    cd(workingdir)
-    return
-elseif isempty(regexp(testfcn,'\.data(?!.)','once'))
-    error('Dataset must be data-file')
-else
-    cd(testdir)
-end
-
-fprintf('\nReading file...') ;
-fid = fopen(testfcn) ;
-
-cd(workingdir)
-
-tline = fgets(fid) ;
-i = 1;
-while ischar(tline)
-    % All attributes must be double and separated by comma
-    % Class indicative must be the last term
-    library(i,:) = str2double(strsplit(tline,',')) ;
-    classes(i) =  library(end) ;
-    i = i+1 ;
-    tline = fgets(fid) ;
-end
-
-fprintf('\nDone reading.') ;
-
+library = infos.library ;
+classes = infos.classes ;
 if isequal(DemoMode,'SEGMENTED')
-    workingdir = pwd ;
-    testdir = ls('data*') ;
-    if ~isempty(testdir), cd(testdir), end
-
-    [testfcn,testdir] = uigetfile('*.test','Load demo test for PSC') ;
-    if ~testfcn
-        cd(workingdir)
-        return
-    elseif isempty(regexp(testfcn,'\.test(?!.)','once'))
-        error('Dataset must be test-file')
-    else
-        cd(testdir)
-    end
-
-    fprintf('\nReading file...') ;
-    fid = fopen(testfcn) ;
-
-    cd(workingdir)
-
-    tline = fgets(fid) ;
-    i = 1;
-    while ischar(tline)
-        % All attributes must be double and separated by comma
-        % Class indicative must be the last term
-        testlibrary(i,:) = str2double(strsplit(tline,',')) ;
-        testclasses(i) =  testlibrary(end) ;
-        i = i+1 ;
-        tline = fgets(fid) ;
-    end
-
-    fprintf('\nDone reading.') ;
-end % isequal
+    testlibrary = infos.testlibrary ;
+    testclasses = infos.testclasses ;
+end % if isequal
 
 if fitnessfcn == 1
     options.fitnessfcn = @pscfitnessfcn1 ;
@@ -89,29 +26,22 @@ elseif fitnessfcn == 3
     options.fitnessfcn = @pscfitnessfcn3 ;
 end % if fitnessfcn
 
-if strncmp(method,'DEFAULT',7)
+if isequal(method,'DEFAULT')
     % DEFAULT EXECUTION
     % ------------------------------------------------
-    fprintf('\nRunning deafult execution') ;
+    fprintf('\nRunning deafult execution - %d generation(s).',gens)
+    fprintf('\n(WARNING: this action might take several minutes)')
     options.c = size(unique(classes),2) ;
-    options.nvars = size(library(1,:),2)-1 ;
+    options.nvars = size(library,2)-1 ;
     options.library = library;
-    generations = 1;
-
-    if isequal(method,'DEFAULT-10G')
-        generations = 10 ;
-        fprintf(' - %d generation(s)',generations)
-        hits = zeros(generations,1) ;
-    end % if isequal
-
-    fprintf('.') 
+    generations = gens;
 
     for itr = 1:generations;
         centers = psc(options) ;
 
         rating.miss = 0; rating.hit = 0;
         samples.testdata = library(:,(1:options.nvars)) ;
-        samples.testsclasses = library(:,end) ;
+        samples.testclasses = library(:,end) ;
         for i = 1:size(library,1)
             mindist = inf ;
             minindex = -1;
@@ -122,7 +52,7 @@ if strncmp(method,'DEFAULT',7)
                     minindex = j ;
                 end
             end % for j
-            if minindex == samples.testsclasses(i)
+            if minindex == samples.testclasses(i)
                 rating.hit = rating.hit+1 ;
             else
                 rating.miss = rating.miss+1 ;
@@ -132,16 +62,16 @@ if strncmp(method,'DEFAULT',7)
         hitrate = rating.hit/(rating.hit+rating.miss) ;
         hits(itr) = hitrate ;
         missrate = rating.miss/(rating.hit+rating.miss) ;
-        if ~isequal(method,'DEFAULT-10G')
+        if generations == 1
             fprintf('\nHit rate: %d\nMiss rate: %d\n',hitrate,missrate)
-        end % if ~isequal
+        end % if generations
     end % for itr
-    if isequal(method,'DEFAULT-10G')
+    if generations > 1
         fprintf('\nHit rate(mean, std) = (%d,%d)\n',mean(hits),std(hits))
-    end % if isequal
+    end % if generations
 
 elseif isequal(method,'LEAVE-ONE-OUT')
-    % LEAVE-ONE-OUT STRATEGY (for smaller databases)
+    % LEAVE-ONE-OUT STRATEGY (not finished)
     % ------------------------------------------------
     fprintf('\nRunning leave-one-out strategy.') ;
     options.c = size(unique(classes),2) ;
@@ -180,24 +110,17 @@ elseif isequal(method,'LEAVE-ONE-OUT')
         itr,rating.hitrate,rating.missrate)
     % ------------------------------------------------
 
-elseif strncmp(method,'HOLDOUT',7)
+elseif isequal(method,'HOLDOUT')
     % HOLDOUT STRATEGY
     % ------------------------------------------------
     %
     options.c = size(unique(classes),2) ;
     options.nvars = size(library(1,:),2)-1 ;
 
-    fprintf('\nRunning holdout strategy (f%d)',fitnessfcn) ;
+    fprintf('\nRunning holdout strategy (f%d) - %d generation(s)',fitnessfcn,gens)
+    fprintf('\n(WARNING: this action might take several minutes)')
     folds = 4 ;
-    generations = 1 ;
-
-    if isequal(method,'HOLDOUT-20G')
-        generations = 20 ;
-        fprintf(' - %d generation(s)',generations)
-        hits = zeros(generations,1) ;
-    end % if isequal
-
-    fprintf('.') 
+    generations = gens ;
 
     for itr = 1:generations
 
@@ -219,7 +142,7 @@ elseif strncmp(method,'HOLDOUT',7)
         rating.miss = 0; rating.hit = 0;
 
         samples.testdata = samples.test(:,(1:options.nvars)) ;
-        samples.testsclasses = samples.test(:,end) ;
+        samples.testclasses = samples.test(:,end) ;
         for i = 1:size(samples.test,1)
             mindist = inf ;
             minindex = -1;
@@ -230,7 +153,7 @@ elseif strncmp(method,'HOLDOUT',7)
                     minindex = j ;
                 end
             end % for j
-            if minindex == samples.testsclasses(i)
+            if minindex == samples.testclasses(i)
                 rating.hit = rating.hit+1 ;
             else
                 rating.miss = rating.miss+1 ;
@@ -240,20 +163,22 @@ elseif strncmp(method,'HOLDOUT',7)
         hitrate = rating.hit/(rating.hit+rating.miss) ;
         hits(itr) = hitrate ;
         missrate = rating.miss/(rating.hit+rating.miss) ;
-        if ~isequal(method,'HOLDOUT-20G')
+        if generations == 1
             fprintf('\nHit rate: %d\nMiss rate: %d\n',hitrate,missrate)
-        end % if ~isequal
+        end % if generations
     end % for itr
-    if isequal(method,'HOLDOUT-20G')
+    if generations > 1
         fprintf('\nHit rate(mean, std) = (%d,%d)\n',mean(hits),std(hits))
-    end % if isequal
+    end % if generations
     %
     % ------------------------------------------------
 end % if isequal
 
 % Plotting (only for 2-dimensional-2-class data)
 % ------------------------------------------------
-if twodim
+nvars = size(library,2)-1 ;
+
+if nvars == 2
     index1 = [] ; index2 = [] ;
     library = library(:,(1:options.nvars)) ;
     for i = 1:size(library,1)
@@ -276,5 +201,3 @@ if twodim
     plot(centers(:,1,2),centers(:,2,2),'kx','markersize',15,'LineWidth',2)
 end % if twodim
 % ------------------------------------------------
-
-fclose(fid) ;

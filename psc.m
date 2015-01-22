@@ -220,8 +220,7 @@ if ~isempty(options.PlotFcns)
 end % if ~isempty
 % -------------------------------------------------------------------------
 
-if options.Verbosity > 0, fprintf( ...
-    '\nSwarming... (WARNING: this action might take several minutes)'), end
+if options.Verbosity > 0, fprintf('\nSwarming... '), end
 exitflag = 0 ; % Default exitflag, for max iterations reached.
 flag = 'init' ;
 
@@ -236,7 +235,8 @@ n = options.PopulationSize ; itr = options.Generations ;
 averagetime = 0 ; stalltime = 0;
 tic
 for k = 1:itr
-    %fprintf('\nGeneration number %d out of 1000',k)
+    % each step printed
+    fprintf('|')
     state.Score = inf*ones(n,1) ; % Reset fitness vector
     state.Penalties = zeros(n,1) ; % Reset all penalties
     state.Generation = k ;

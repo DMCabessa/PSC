@@ -20,7 +20,7 @@ for i = 1:size(state.Population,1)
 	for j = 1:size(state.Population,2)
 		hi = max(library(:,j)) ;
 		lo = min(library(:,j)) ;
-		state.Population(i,j,:) = rand(1,2)*(hi-lo)+lo ;
+		state.Population(i,j,:) = rand(1,c)*(hi-lo)+lo ;
 	end % for j
 end % for i
 
