@@ -2,8 +2,7 @@
 cd C:\Users\Victor\Documents\GitHub\PSC ;
 
 % Clear all functions and variables from RAM before going any further
-clear functions ;
-clear variables ;
+clear all ;
 
 % Reading training (.data) file
 % ----------------------------------------------------------------

@@ -20,14 +20,18 @@ options.PopInitRange = [0;1] ;
 options.PopulationSize = 50 ;
 options.PopulationType = 'doubleVector' ;
 options.SocialAttraction = 2.0 ;
-options.StallGenLimit = 50 ;
+options.StallGenLimit = 125 ;
 options.StallTimeLimit = Inf ;
 options.TimeLimit = Inf ;
 options.TolCon = 1e-6 ;
 options.TolFun = 1e-6 ;
 options.UseParallel = 'never' ;
 options.Vectorized = 'off' ;
-options.VelocityLimit = 0.05 ;
+
+% This variable is now set afterwards
+%options.VelocityLimit = 0.05 ;
+% This variable control VelocityLimit
+options.VelocityFactor = 0.05 ;
 
 if ~nargin && ~nargout
     fprintf('\n')

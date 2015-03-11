@@ -2,8 +2,7 @@
 cd C:\Users\Victor\Documents\GitHub\PSC ;
 
 % Clear all functions from RAM before going any further
-clear functions ;
-clear variables ;
+clear all ;
 
 % Reading dataset file
 % ----------------------------------------------------------------
@@ -45,7 +44,7 @@ infos.library = library ;
 infos.classes = classes ;
 
 % number of generations
-gens = 1 ;
+gens = 20 ;
 
 % Run PSC with each fitness function
 %pscdemo('SINGULAR',1,'HOLDOUT',gens,infos) ;

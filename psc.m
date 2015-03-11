@@ -16,6 +16,12 @@ end % if ~exist
 
 options = pscoptimset(options) ;
 
+% Defining VelocityLimit
+maximum = max(library(:)) ;
+minimum = min(library(:)) ;
+amp = maximum - minimum ;
+options.VelocityLimit = options.VelocityFactor*amp ;
+
 options.Verbosity = 1 ; % For options.Display == 'final' (default)
 if strcmpi(options.Display,'off')
     options.Verbosity = 0 ;
@@ -235,8 +241,6 @@ n = options.PopulationSize ; itr = options.Generations ;
 averagetime = 0 ; stalltime = 0;
 tic
 for k = 1:itr
-    % each step printed
-    fprintf('|')
     state.Score = inf*ones(n,1) ; % Reset fitness vector
     state.Penalties = zeros(n,1) ; % Reset all penalties
     state.Generation = k ;
@@ -282,7 +286,7 @@ for k = 1:itr
         end % for i
     end % if strcmpi
     % ---------------------------------------------------------------------
-    
+
     % Update the local bests
     % ---------------------------------------------------------------------
     %fprintf('\nUpdating local bests...')
@@ -299,7 +303,37 @@ for k = 1:itr
 %         ((1/n)*sum((state.Velocities*state.Velocities')^2) ./ ...
 %         ((1/n)*sum(state.Velocities*state.Velocities')).^2) ;
 %     tempchk = alpha <= 1.6 ;
+    
+    %{
+    clf
+    center = state.xGlobalBest ;
+    axis([10,15,0,6])
+    hold on
+
+    % library
+    samples = library(library(:, end) == 1, :) ;
+    plot(samples(:,1),samples(:,2),'ro')
+    samples = library(library(:, end) == 2, :) ;
+    plot(samples(:,1),samples(:,2),'gx')
+    samples = library(library(:, end) == 3, :) ;
+    plot(samples(:,1),samples(:,2),'b+')
+
+    % population
+    plot(state.Population(:,1,1),state.Population(:,2,1),'ko') ;
+    plot(state.Population(:,1,2),state.Population(:,2,2),'kx') ;
+    plot(state.Population(:,1,3),state.Population(:,2,3),'k+') ;
+
+    % bests
+    plot(center(:,1,1),center(:,2,1),'ko','markersize',15,'LineWidth',2)
+    plot(center(:,1,2),center(:,2,2),'kx','markersize',15,'LineWidth',2)
+    plot(center(:,1,3),center(:,2,3),'k+','markersize',15,'LineWidth',2)
+    %fprintf('\ncenter(%f, %f)\n',center(1,1,1),center(1,2,1))
+    pause
+    %}
+
     if k == 1 || minfitness < state.fGlobalBest(k-1,:)
+        % each improved step printed
+        fprintf('(%f)',minfitness)
         stalltime = toc ;
         state.fGlobalBest(k,:) = minfitness ;
         state.xGlobalBest = state.Population(minfitnessindex,:,:) ;
@@ -316,6 +350,8 @@ for k = 1:itr
             flag = 'done' ;
         end % if k
     else % No improvement from last iteration
+        % each improved step printed
+        fprintf('-')
         state.fGlobalBest(k,:) = state.fGlobalBest(k-1,:) ;
     end % if minfitness
 

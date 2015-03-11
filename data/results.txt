@@ -1,4 +1,19 @@
-results::iris (miss rate)
+result: mean miss rate after 20 iterations
+
+results::iris
 f1: 2.93%
 f2: 7.33%
 f3: 3.00%
+
+results::glass
+f1: 4.67%
+f2: 10.28%
+f3: 8.25%
+
+results::wine
+f1: 19.24%
+f2: 27.56%
+f3: ?
+
+results::thyroid (using 2 results)
+f1: ~7.40%

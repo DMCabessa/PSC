@@ -22,8 +22,6 @@ R1(isinf(state.fLocalBests)) = 0 ;
 
 % Calculate matrix of velocities state.Velocities for entire population
 if strncmpi(options.PopulationType,'double',6) % Double vector
-
-    % only for 'fcmdata' dataset
     %{
     fprintf('\nPopulation 1')
     state.Population(1,:,1)
@@ -39,19 +37,6 @@ if strncmpi(options.PopulationType,'double',6) % Double vector
     fprintf('\nMult')
     x = C2.*R2.*(repmat(state.xGlobalBest,n,1) - state.Population) ;
     x(1,:,1)
-    pause
-    %}
-    
-    %{
-    clf
-    center = state.xGlobalBest ;
-    axis([0,1,0,1])
-    hold on
-    plot(state.Population(:,1,1),state.Population(:,2,1),'o')
-    plot(state.Population(:,1,2),state.Population(:,2,2),'x')
-    plot(state.Population(1,1,1),state.Population(1,2,1),'rx')
-    plot(center(:,1,1),center(:,2,1),'ko','markersize',15,'LineWidth',2)
-    plot(center(:,1,2),center(:,2,2),'kx','markersize',15,'LineWidth',2)
     pause
     %}
 

@@ -30,13 +30,16 @@ if isequal(method,'DEFAULT')
     % DEFAULT EXECUTION
     % ------------------------------------------------
     fprintf('\nRunning deafult execution - %d generation(s).',gens)
+    fprintf('\n(INFO: using #%d fitness function )',fitnessfcn)
     fprintf('\n(WARNING: this action might take several minutes)')
     options.c = size(unique(classes),2) ;
     options.nvars = size(library,2)-1 ;
     options.library = library;
     generations = gens;
+    
+    hits = zeros(generations,1) ;
 
-    for itr = 1:generations;
+    for itr = 1:generations
         centers = psc(options) ;
 
         rating.miss = 0; rating.hit = 0;
@@ -62,9 +65,10 @@ if isequal(method,'DEFAULT')
         hitrate = rating.hit/(rating.hit+rating.miss) ;
         hits(itr) = hitrate ;
         missrate = rating.miss/(rating.hit+rating.miss) ;
-        if generations == 1
-            fprintf('\nHit rate: %d\nMiss rate: %d\n',hitrate,missrate)
-        end % if generations
+        %if generations == 1
+            fprintf('\nIteration %d of %d',itr,generations)
+            fprintf('Hit rate: %d\nMiss rate: %d\n',hitrate,missrate)
+        %end % if generations
     end % for itr
     if generations > 1
         fprintf('\nHit rate(mean, std) = (%d,%d)\n',mean(hits),std(hits))

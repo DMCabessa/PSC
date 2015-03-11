@@ -1,4 +1,4 @@
-function f = pscfitnessfcn2(x, library, c)
+function f = pscfitnessfcn2(x, library, ~)
 % Basic fitness function for PSC, namely ψi,c(t)
 % arg 'c' is irrelevant, but necessary for uniformity 
 
