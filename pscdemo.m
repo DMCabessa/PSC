@@ -66,12 +66,14 @@ if isequal(method,'DEFAULT')
         hits(itr) = hitrate ;
         missrate = rating.miss/(rating.hit+rating.miss) ;
         %if generations == 1
-            fprintf('\nIteration %d of %d',itr,generations)
-            fprintf('Hit rate: %d\nMiss rate: %d\n',hitrate,missrate)
+            fprintf('\nIteration %d of %d:\n',itr,generations)
+            fprintf('> Hit rate: %d\n> Miss rate: %d\n',hitrate,missrate)
         %end % if generations
     end % for itr
     if generations > 1
-        fprintf('\nHit rate(mean, std) = (%d,%d)\n',mean(hits),std(hits))
+        fprintf('\n########## Final results #############\n')
+        fprintf('> Hit rate(mean, std) = (%d,%d)',mean(hits),std(hits))
+        fprintf('\n######################################\n')
     end % if generations
 
 elseif isequal(method,'LEAVE-ONE-OUT')
