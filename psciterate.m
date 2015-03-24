@@ -110,7 +110,7 @@ df = abs(gd ./ ld) ;
 
 function w = inertia(lowerinertia, upperinertia, df, t, Kmax)
 
-u = 1;
+u = 100;
 
 w = (lowerinertia - upperinertia) ./ ...
     (1 + exp( df .* (t-((1+log(df)).*Kmax) )/u )) + ...

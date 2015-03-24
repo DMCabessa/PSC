@@ -72,7 +72,7 @@ if isequal(method,'DEFAULT')
     end % for itr
     if generations > 1
         fprintf('\n########## Final results #############\n')
-        fprintf('> Hit rate(mean, std) = (%d,%d)',mean(hits),std(hits))
+        fprintf('> Miss rate(mean, std) = (%d,%d)',1-(mean(hits)),std(hits))
         fprintf('\n######################################\n')
     end % if generations
 
