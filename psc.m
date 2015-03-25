@@ -1,4 +1,4 @@
-function [centers] = psc(options)
+function [centers,output] = psc(options)
 
 % presets from psodemo.m
 options.Aineq = [] ; options.bineq = [] ;

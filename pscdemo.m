@@ -34,13 +34,14 @@ if isequal(method,'DEFAULT')
     fprintf('\n(WARNING: this action might take several minutes)')
     options.c = size(unique(classes),2) ;
     options.nvars = size(library,2)-1 ;
-    options.library = library;
-    generations = gens;
+    options.library = library ;
+    generations = gens ;
     
     hits = zeros(generations,1) ;
+    outgens = zeros(generations,1) ; 
 
     for itr = 1:generations
-        centers = psc(options) ;
+        [centers,output] = psc(options) ;
 
         rating.miss = 0; rating.hit = 0;
         samples.testdata = library(:,(1:options.nvars)) ;
@@ -64,6 +65,7 @@ if isequal(method,'DEFAULT')
         % ------------------------------------------------
         hitrate = rating.hit/(rating.hit+rating.miss) ;
         hits(itr) = hitrate ;
+        outgens(itr) = output.generations ;
         missrate = rating.miss/(rating.hit+rating.miss) ;
         %if generations == 1
             fprintf('\nIteration %d of %d:\n',itr,generations)
@@ -73,6 +75,7 @@ if isequal(method,'DEFAULT')
     if generations > 1
         fprintf('\n########## Final results #############\n')
         fprintf('> Miss rate(mean, std) = (%d,%d)',1-(mean(hits)),std(hits))
+        fprintf('> Number of generations(mean, std) = (%d,%d)',mean(outgens),std(outgens))
         fprintf('\n######################################\n')
     end % if generations
 
