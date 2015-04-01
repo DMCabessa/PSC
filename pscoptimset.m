@@ -29,9 +29,9 @@ options.UseParallel = 'never' ;
 options.Vectorized = 'off' ;
 
 % This variable is now set afterwards
-%options.VelocityLimit = 0.05 ;
+options.VelocityLimit = 0.05 ;
 % This variable control VelocityLimit
-options.VelocityFactor = 0.05 ;
+%options.VelocityFactor = 0.05 ;
 
 if ~nargin && ~nargout
     fprintf('\n')

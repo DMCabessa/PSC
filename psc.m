@@ -17,10 +17,12 @@ end % if ~exist
 options = pscoptimset(options) ;
 
 % Defining VelocityLimit
+%{
 maximum = max(library(:)) ;
 minimum = min(library(:)) ;
 amp = maximum - minimum ;
 options.VelocityLimit = options.VelocityFactor*amp ;
+%}
 
 options.Verbosity = 1 ; % For options.Display == 'final' (default)
 if strcmpi(options.Display,'off')

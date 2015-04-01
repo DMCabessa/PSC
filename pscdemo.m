@@ -64,9 +64,9 @@ if isequal(method,'DEFAULT')
         end % for i
         % ------------------------------------------------
         hitrate = rating.hit/(rating.hit+rating.miss) ;
-        hits(itr) = hitrate ;
-        outgens(itr) = output.generations ;
         missrate = rating.miss/(rating.hit+rating.miss) ;
+        hits(itr) = missrate ;
+        outgens(itr) = output.generations ;
         %if generations == 1
             fprintf('\nIteration %d of %d:\n',itr,generations)
             fprintf('> Hit rate: %d\n> Miss rate: %d\n',hitrate,missrate)
@@ -74,7 +74,7 @@ if isequal(method,'DEFAULT')
     end % for itr
     if generations > 1
         fprintf('\n########## Final results #############\n')
-        fprintf('> Miss rate(mean, std) = (%d,%d)',1-(mean(hits)),std(hits))
+        fprintf('> Miss rate(mean, std) = (%d,%d)\n',mean(hits),std(hits))
         fprintf('> Number of generations(mean, std) = (%d,%d)',mean(outgens),std(outgens))
         fprintf('\n######################################\n')
     end % if generations

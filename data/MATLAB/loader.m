@@ -1,23 +1,20 @@
 % load desired dataset
-%load wine_dataset ;
-%load thyroid_dataset ;
-load glass_dataset ;
+load thyroid_dataset ;
 
-for i = 1:size(glassTargets,2)
-	if glassTargets(1,i) == 1
+for i = 1:size(thyroidTargets,2)
+	if thyroidTargets(1,i) == 1
 		targets(i) = 1 ;
-	elseif glassTargets(2,i) == 1
+	elseif thyroidTargets(2,i) == 1
 		targets(i) = 2 ;
 	else
 		targets(i) = 3 ;
-	end % if glassTargets
+	end % if thyroidTargets
 end % for i
 
-data = horzcat(glassInputs',targets') ;
+data = horzcat(thyroidInputs',targets') ;
 
 % write on file
-fid = fopen('glass.data','w') ;
-
+fid = fopen('thyroid.data','w') ;
 
 for i = 1:size(data,1)
 	for j = 1:size(data,2)
