@@ -47,13 +47,13 @@ infos.classes = classes ;
 gens = 20 ;
 
 % Run PSC with each fitness function
-%pscdemo('SINGULAR',1,'HOLDOUT',gens,infos) ;
-%pscdemo('SINGULAR',2,'HOLDOUT',gens,infos) ;
-%pscdemo('SINGULAR',3,'HOLDOUT',gens,infos) ;
+pscdemo('SINGULAR',1,'HOLDOUT',gens,infos) ;
+pscdemo('SINGULAR',2,'HOLDOUT',gens,infos) ;
+pscdemo('SINGULAR',3,'HOLDOUT',gens,infos) ;
 
 % Alternative Run
-pscdemo('SINGULAR',1,'DEFAULT',gens,infos) ;
-pscdemo('SINGULAR',2,'DEFAULT',gens,infos) ;
-pscdemo('SINGULAR',3,'DEFAULT',gens,infos) ;
+%pscdemo('SINGULAR',1,'DEFAULT',gens,infos) ;
+%pscdemo('SINGULAR',2,'DEFAULT',gens,infos) ;
+%pscdemo('SINGULAR',3,'DEFAULT',gens,infos) ;
 
 fclose(fid) ;

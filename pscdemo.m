@@ -126,10 +126,17 @@ elseif isequal(method,'HOLDOUT')
     options.c = size(unique(classes),2) ;
     options.nvars = size(library(1,:),2)-1 ;
 
-    fprintf('\nRunning holdout strategy (f%d) - %d generation(s)',fitnessfcn,gens)
-    fprintf('\n(WARNING: this action might take several minutes)')
     folds = 4 ;
+    testnum = 100/folds ;
     generations = gens ;
+
+    fprintf('\nRunning holdout execution - %d generation(s).',gens)
+    fprintf('\n{Using %d%% of samples as training and %d%% as test}',(100-testnum),testnum)
+    fprintf('\n(INFO: using #%d fitness function )',fitnessfcn)
+    fprintf('\n(WARNING: this action might take several minutes)')
+
+    hits = zeros(generations,1) ;
+    outgens = zeros(generations,1) ; 
 
     for itr = 1:generations
 
@@ -144,7 +151,7 @@ elseif isequal(method,'HOLDOUT')
 
         %fprintf('\nTraining phase...')
 
-        centers = psc(options) ;
+        [centers,output] = psc(options) ;
 
         %fprintf('\nTesting phase...')
         % ------------------------------------------------
@@ -170,14 +177,19 @@ elseif isequal(method,'HOLDOUT')
         end % for i
         % ------------------------------------------------
         hitrate = rating.hit/(rating.hit+rating.miss) ;
-        hits(itr) = hitrate ;
         missrate = rating.miss/(rating.hit+rating.miss) ;
-        if generations == 1
-            fprintf('\nHit rate: %d\nMiss rate: %d\n',hitrate,missrate)
-        end % if generations
+        hits(itr) = missrate ;
+        outgens(itr) = output.generations ;
+        %if generations == 1
+            fprintf('\nIteration %d of %d:\n',itr,generations)
+            fprintf('> Hit rate: %d\n> Miss rate: %d\n',hitrate,missrate)
+        %end % if generations
     end % for itr
-    if generations > 1
-        fprintf('\nHit rate(mean, std) = (%d,%d)\n',mean(hits),std(hits))
+     if generations > 1
+        fprintf('\n########## Final results #############\n')
+        fprintf('> Miss rate(mean, std) = (%d,%d)\n',mean(hits),std(hits))
+        fprintf('> Number of generations(mean, std) = (%d,%d)',mean(outgens),std(outgens))
+        fprintf('\n######################################\n')
     end % if generations
     %
     % ------------------------------------------------
