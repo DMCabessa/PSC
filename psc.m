@@ -260,7 +260,7 @@ for k = 1:itr
     % Evaluate fitness, update the local bests
     % ---------------------------------------------------------------------
     % Apply constraint violation penalties, if applicable
-    %fprintf('\nEvaluating fitness...')
+    % fprintf('\nEvaluating fitness...')
     
     % Note that this code does not calculate fitness values for
     % particles that are outside the search space constraints.
@@ -291,7 +291,7 @@ for k = 1:itr
 
     % Update the local bests
     % ---------------------------------------------------------------------
-    %fprintf('\nUpdating local bests...')
+    % fprintf('\nUpdating local bests...')
     betterindex = state.Score < state.fLocalBests ;
     state.fLocalBests(betterindex) = state.Score(betterindex) ;
     state.xLocalBests(betterindex,:,:) = state.Population(betterindex,:,:) ;
@@ -335,7 +335,8 @@ for k = 1:itr
 
     if k == 1 || minfitness < state.fGlobalBest(k-1,:)
         % each improved step printed
-        fprintf('(%f)',minfitness)
+        % fprintf('(%f)',minfitness)
+        fprintf('*')
         stalltime = toc ;
         state.fGlobalBest(k,:) = minfitness ;
         state.xGlobalBest = state.Population(minfitnessindex,:,:) ;
@@ -376,6 +377,7 @@ for k = 1:itr
 
     % Update flags, state and plots before updating positions
     % ---------------------------------------------------------------------
+    % fprintf('\nUpdating falgs, state and plots...')
     if k == 2, flag = 'iter' ; end
     if k == itr
         flag = 'done' ;
@@ -430,6 +432,7 @@ for k = 1:itr
     
     % Update the particle velocities and positions
     % ---------------------------------------------------------------------
+    % fprintf('\nUpdating particle velocities and positions...')
     state = options.AccelerationFcn(options,state,flag) ;
     % ---------------------------------------------------------------------
     averagetime = toc/k ;

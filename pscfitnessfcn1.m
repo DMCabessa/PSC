@@ -12,7 +12,7 @@ for k = 1:DTrain
 	yguessedclass = 0 ;
 	yguesseddist = inf ;
 	for i = 1:c
-		d = pdist([x(:,:,i);ysample]) ;
+		d = e_dist(x(:,:,i),ysample) ;
 		if d < yguesseddist
 			yguesseddist = d ;
 			yguessedclass = i ;
@@ -30,3 +30,7 @@ for k = 1:DTrain
 end % for k
 
 f = (100/DTrain)*sum(result);
+
+% Euclidian distance
+function distance = e_dist(A, B)
+distance = norm(A - B);

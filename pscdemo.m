@@ -50,7 +50,7 @@ if isequal(method,'DEFAULT')
             mindist = inf ;
             minindex = -1;
             for j = 1:options.c
-                d = pdist([samples.testdata(i,:);centers(:,:,j)]) ;
+                d = e_dist(samples.testdata(i,:), centers(:,:,j)) ;
                 if d < mindist
                     mindist = d ;
                     minindex = j ;
@@ -163,7 +163,7 @@ elseif isequal(method,'HOLDOUT')
             mindist = inf ;
             minindex = -1;
             for j = 1:options.c
-                d = pdist([samples.testdata(i,:);centers(:,:,j)]) ;
+                d = e_dist(samples.testdata(i,:), centers(:,:,j)) ;
                 if d < mindist
                     mindist = d ;
                     minindex = j ;
@@ -222,3 +222,7 @@ if nvars == 2
     plot(centers(:,1,2),centers(:,2,2),'kx','markersize',15,'LineWidth',2)
 end % if twodim
 % ------------------------------------------------
+
+% Euclidian distance
+function distance = e_dist(A, B)
+distance = norm(A - B);

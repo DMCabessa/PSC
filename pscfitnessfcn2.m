@@ -11,7 +11,11 @@ for k = 1:DTrain
 	yclass = y(end) ;
 	ysample = y(1:end-1) ;
 	xsample = x(:,:,yclass) ;
-	result(k) = pdist([xsample;ysample]) ;
+	result(k) = e_dist(xsample,ysample) ;
 end % for k
 
 f = (1/DTrain)*sum(result);
+
+% Euclidian distance
+function distance = e_dist(A, B)
+distance = norm(A - B);

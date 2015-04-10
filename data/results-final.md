@@ -17,7 +17,7 @@ All results are evaluated according to the mean miss rate on the test set.
 | :------------ |:------:| :-----:|  :-----:|
 | iris          | 6.02% | 7.94% | **4.74%** |
 | wine          | 12.88% | **2.55%** | 2.89% |
-| glass         | TBT | TBT | TBT |
+| glass         | **7.87%** | 8.05% | 8.14% |
 | thyroid       | TBT | TBT | TBT |
 
 > *TBT: To be tested.*
@@ -31,6 +31,14 @@ All results are evaluated according to the mean miss rate on the test set.
 | Ψ1    | 1 | ±5.88 | 239 |
 | Ψ2    | 2 | ±1.94 | 355 |
 | Ψ3    | 2 | ±2.12 | 387 |
+
+**Glass**
+
+| fitnessfcn  | stop_cause | std | gens |
+| :------------ |:------:| :-----:|  :-----:|
+| Ψ1    | 1 | ±4.06 | 215 |
+| Ψ2    | 2 | ±2.56 | 370 |
+| Ψ3    | 2 | ±4.17 | 458 |
 
 > Stop causes:<br>
 > 1: The value of the fitness function did not improve in the last *n* generations.<br>
